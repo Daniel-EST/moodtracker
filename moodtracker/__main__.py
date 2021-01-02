@@ -7,14 +7,19 @@
 DESCRIPTION
 """
 
-import os
+import logging
 
-CLIENT_ID = os.environ.get('CLIENT_ID')
-CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+from bot import bot_start
 
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
+)
 
-def main():
-    print("Program started")
+logger = logging.getLogger(__name__)
+
+def main() -> None:
+    bot_start()
+    
 
 if __name__ == '__main__':
     main()
