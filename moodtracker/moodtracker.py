@@ -26,6 +26,8 @@ from telegram.ext import (
     CallbackContext,
 )
 
+import db.moodtracker
+
 CHAT_ID = int(os.environ.get("TELEGRAM_CHAT_ID"))
 
 MOOD, REASONS, TYPING_REASON, NOTE, TYPING_NOTE, = range(5)
@@ -52,16 +54,24 @@ note_markup = ReplyKeyboardMarkup(note_keyboard, one_time_keyboard=True)
 
 def facts_to_str(user_data: Dict[str, str]) -> str:
     facts = list()
-
-    for key, values in user_data.items():
-        facts.append(f'{key.title()}:')
-        if type(values) == list:
-            for value in values:
-                facts.append(f' - {value.title()}')
-        else:
-            facts.append(f' - {values.title()}')
-
+    try:
+        for key, values in user_data.items():
+            facts.append(f'{key.title()}:')
+            if type(values) == list:
+                for value in values:
+                    facts.append(f' - {value.title()}')
+            else:
+                facts.append(f' - {values.title()}')
+    except AttributeError:
+        pass
+    
     return "\n".join(facts).join(['\n', '\n'])
+
+def display_mood(update: Update, user_data: Dict) -> None:
+    update.message.reply_text(
+        f"Your mood information:\n{facts_to_str(user_data)}\nUntil next time!",
+        reply_markup=ReplyKeyboardRemove()
+    )
 
 
 def start(update: Update, context: CallbackContext) -> int:
@@ -126,12 +136,6 @@ def custom_note(update: Update, context: CallbackContext) -> int:
 
     return TYPING_NOTE
 
-def display_mood(update: Update, user_data: Dict) -> None:
-    update.message.reply_text(
-        f"Your mood information:\n{facts_to_str(user_data)}\nUntil next time!",
-        reply_markup=ReplyKeyboardRemove()
-    )
-
 def done_has_note(update: Update, context: CallbackContext) -> int:
     text = update.message.text
     context.user_data['note'] = text
@@ -139,14 +143,19 @@ def done_has_note(update: Update, context: CallbackContext) -> int:
     user_data = context.user_data
 
     display_mood(update, user_data)
+    conn = db.moodtracker.connect()
+    db.moodtracker.insert_mood(conn, update, user_data)
 
     user_data.clear()
     return ConversationHandler.END
 
 def done(update: Update, context: CallbackContext) -> int:
+    context.user_data['note'] = None
     user_data = context.user_data
 
     display_mood(update, user_data)
+    conn = db.moodtracker.connect()
+    db.moodtracker.insert_mood(conn, update, user_data)
 
     user_data.clear()
     return ConversationHandler.END

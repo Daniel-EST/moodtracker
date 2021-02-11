@@ -142,6 +142,9 @@ dmypy.json
 # profiling data
 .prof
 
+# Postgresql
+database.ini
+
 ### vscode ###
 .vscode
 .vscode/*

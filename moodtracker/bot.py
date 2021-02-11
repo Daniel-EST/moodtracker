@@ -24,4 +24,3 @@ def bot_start() -> None:
     updater.start_polling()
 
     updater.idle()
-    

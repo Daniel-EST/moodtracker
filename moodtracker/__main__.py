@@ -9,6 +9,7 @@ DESCRIPTION
 
 import logging
 
+import db.moodtracker
 from bot import bot_start
 
 logging.basicConfig(
@@ -18,8 +19,10 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def main() -> None:
+    conn = db.moodtracker.connect()
+    db.moodtracker.create_table(conn)
     bot_start()
-    
+
 
 if __name__ == '__main__':
     main()
