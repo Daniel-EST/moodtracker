@@ -1,5 +1,7 @@
 FROM python:3.9-alpine
 
+ENV PYTHONUNBUFFERED 1
+
 RUN mkdir -p /odt/app
 
 COPY . /odt/app
@@ -11,7 +13,9 @@ RUN apk add --no-cache \
         musl-dev \
         libffi-dev \
         gcc \
-        python3-dev \
+        python3-dev \ 
+        cargo \
+        postgresql-dev \
         openssl-dev && \
     pip install pipenv
 
@@ -23,6 +27,7 @@ RUN apk del \
         libffi-dev \
         gcc \
         python3-dev \
-        openssl-dev
+        openssl-dev \
+        cargo 
 
 ENTRYPOINT pipenv run moodtracker/__main__.py
