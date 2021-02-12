@@ -8,7 +8,7 @@ DESCRIPTION
 """
 
 import os
-from logging import debug, log
+from logging import log
 from datetime import datetime
 from typing import Dict
 
